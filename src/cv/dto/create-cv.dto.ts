@@ -1,3 +1,4 @@
+import {User} from "../../user/entities/user.entity";
 
 export class CreateCvDto {
     name : string;
@@ -5,4 +6,5 @@ export class CreateCvDto {
     age : number;
     Cin : string;
     Job : string;
+    userId : string;
 }

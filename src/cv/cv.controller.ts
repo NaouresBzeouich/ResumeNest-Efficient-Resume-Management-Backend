@@ -8,7 +8,7 @@ export class CvController {
   constructor(private readonly cvService: CvService) {}
 
   @Post()
-  create(@Body() createCvDto: CreateCvDto) {
+  async create(@Body() createCvDto: CreateCvDto) {
     return this.cvService.create(createCvDto);
   }
 
@@ -17,11 +17,21 @@ export class CvController {
     return this.cvService.findAll();
   }
 
+  @Get('/ByUsers')
+  async findByUsers() {
+    return await this.cvService.findAll({relations: ['user']});
+  }
   @Get('names')
   async findAllAsUser() {
     const cvs = await  this.cvService.findAll();
     const names = cvs.map(cv => cv.name);
     return names;
+  }
+
+  @Get('/ByUser/:id')
+  async findByUserId(@Param('id') id: string) {
+    const cvs = await this.cvService.findAll({ relations: ['user'] });
+    return cvs.filter(cv => cv.user?.id === id); // Use optional chaining to avoid errors if user is undefined
   }
 
   @Get(':id')
