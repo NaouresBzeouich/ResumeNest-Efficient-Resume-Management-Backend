@@ -15,9 +15,9 @@ export class CvController {
 
   @Post()
   async create(@Body() createCvDto: CreateCvDto) {
-
     const cv = await  this.cvService.create(createCvDto);
-    this.eventEmitter.emit(CV_EVENTS.add, {cv});
+    const userId = cv.user.id;
+    this.eventEmitter.emit(CV_EVENTS.add, {cv,userId});
     return cv ;
   }
 
@@ -61,14 +61,17 @@ export class CvController {
   @Patch('/ById')
   async update(@Body('id') id: string,@Body() updateCvDto: UpdateCvDto) {
     const cv = await this.cvService.update(id, updateCvDto);
-    this.eventEmitter.emit(CV_EVENTS.update, {cv});
+    const userId = cv.user.id;
+    this.eventEmitter.emit(CV_EVENTS.update, {cv,userId});
     return cv ;
   }
 
   @Delete('')
+  @UseGuards(AuthGuardGuard)
   async remove(@Body('id') id: string) {
     const cv = await this.cvService.findOne(id);
-    this.eventEmitter.emit(CV_EVENTS.delete, {cv});
+    const userId = cv.user.id;
+    this.eventEmitter.emit(CV_EVENTS.delete, {cv,userId});
     return this.cvService.remove(id);
   }
 }

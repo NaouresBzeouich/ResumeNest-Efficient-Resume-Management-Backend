@@ -1,13 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Sse} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {UserSubscribeDto} from "./dto/create-UserSubscribeDto";
 import {LoginCreadentialsDto} from "./dto/create-LoginCreadentialsDto";
+import {fromEvent, map, Observable} from "rxjs";
+import {EventEmitter2} from "@nestjs/event-emitter";
+import {CV_EVENTS} from "../cv/cv.events.config";
+import { merge } from 'rxjs';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService,
+              private eventEmitter: EventEmitter2
+  ) {}
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -32,6 +38,23 @@ export class UserController {
     const users = await  this.userService.findAll();
     const usernames = users.map(user => user.username);
     return usernames;
+  }
+  @Get('/listen')
+  @Sse('sse')
+  sse(): Observable<MessageEvent> {
+    const addStream = fromEvent(this.eventEmitter, CV_EVENTS.add).pipe(
+        map((payload) => new MessageEvent('new-cv', { data: payload }))
+    );
+
+    const deleteStream = fromEvent(this.eventEmitter, CV_EVENTS.delete).pipe(
+        map((payload) => new MessageEvent('cv-deleted', { data: payload }))
+    );
+
+    const updateStream = fromEvent(this.eventEmitter, CV_EVENTS.update).pipe(
+        map((payload) => new MessageEvent('cv-updated', { data: payload }))
+    );
+
+    return merge(addStream, deleteStream, updateStream);
   }
 
   @Get(':id')
