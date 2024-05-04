@@ -46,10 +46,6 @@ export class CvController {
     return cvs.filter(cv => cv.user?.id === id); // Use optional chaining to avoid errors if user is undefined
   }
 
-  @Get('/ById')
-  findOne(@Body('id') id: string) {
-    return this.cvService.findOne(id);
-  }
 
   @Patch('/ById')
   @UseGuards(AuthGuardGuard)

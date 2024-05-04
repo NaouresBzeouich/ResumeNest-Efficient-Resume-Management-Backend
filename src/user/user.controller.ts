@@ -43,6 +43,7 @@ export class UserController {
     const usernames = users.map(user => user.username);
     return usernames;
   }
+
   @Get('/listen')
   @UseGuards(AuthGuardGuard)
   @Sse('sse')
@@ -65,7 +66,7 @@ export class UserController {
     else{
       const userId = user.id ;
       const addStream = fromEvent(this.eventEmitter, CV_EVENTS.add).pipe(
-          filter((payload: any) => payload.user.id === userId),
+          filter((payload: any) => payload.user.id === userId) ,
           map((payload: any) => new MessageEvent('new-cv', { data: payload }))
       );
       const deleteStream = fromEvent(this.eventEmitter, CV_EVENTS.delete).pipe(
