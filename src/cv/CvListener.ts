@@ -6,17 +6,17 @@ import {CV_EVENTS} from "./cv.events.config";
 export class CvListener {
 
     @OnEvent(CV_EVENTS.add)
-    async handleCvAdded(payload: any) {
+    async handleCvAdded(payload: {user,cv}) {
         console.log( "cv with id ", payload.cv.id ," was added  !");
     }
 
     @OnEvent(CV_EVENTS.update)
-    async handleCvUpdated(payload: any) {
+    async handleCvUpdated(payload: { user,cv }) {
         console.log("cv with id ",payload.cv.id, " was updated  !" );
     }
 
     @OnEvent(CV_EVENTS.delete)
-    async handleCvDeleted(payload: any) {
+    async handleCvDeleted(payload: { user,cv }) {
         console.log("cv with id ",payload.cv.id, " was deleted  !" );
     }
 

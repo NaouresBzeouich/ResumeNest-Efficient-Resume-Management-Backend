@@ -16,28 +16,16 @@ export class CvController {
   ) {}
 
   @Post()
-  async create(@Body() createCvDto: CreateCvDto) {
-    const cv = await  this.cvService.create(createCvDto);
-    const userId = cv.user.id;
-    this.eventEmitter.emit(CV_EVENTS.add, {cv,userId});
-    return cv ;
-  }
-
-  @Post('addCv')
   @UseGuards(AuthGuardGuard)
-  async addCv(
-      @Body() createCvDto: CreateCvDto,
-  ) {
-    return this.cvService.create(createCvDto);
+  async create(@Body() createCvDto: CreateCvDto,@GetUser() user : User) {
+    const cv = await  this.cvService.create(createCvDto);
+    this.eventEmitter.emit(CV_EVENTS.add, {cv,user});
+    return cv ;
   }
 
   @Get()
   @UseGuards(AuthGuardGuard)
-  findAll(
-      @Req() req:Request,
-      @GetUser() user: User,
-  ) {
-    console.log(user);
+  findAll() {
     return this.cvService.findAll();
   }
 
@@ -64,25 +52,23 @@ export class CvController {
   }
 
   @Patch('/ById')
+  @UseGuards(AuthGuardGuard)
   async update(
       @Body('id') id: string,@Body() updateCvDto: UpdateCvDto,
       @GetUser() user: User,
       ) {
     const cv = await this.cvService.update(id, updateCvDto);
-    console.log(user);
-   // const userId = user.id;
     this.eventEmitter.emit(CV_EVENTS.update, {cv,user});
     return cv ;
   }
 
   @Delete('')
   @UseGuards(AuthGuardGuard)
-  async remove(@Body('id') id: string,
+   async remove(@Body('id') id: string,
                @GetUser() user: User,
                ) {
     const cv = await this.cvService.findOne(id);
-    const userId = user.id;
-    this.eventEmitter.emit(CV_EVENTS.delete, {cv,userId});
+    this.eventEmitter.emit(CV_EVENTS.delete, {cv,user});
     return this.cvService.remove(id);
   }
 }

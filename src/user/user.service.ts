@@ -47,6 +47,8 @@ export class UserService extends CrudService<User> {
         email : user.email,
         role : user.role
       }
+      console.log(payload);
+
       const jwt = await this.jwtService.sign(payload);
       return {
         accessToken: jwt,

@@ -1,13 +1,17 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Sse} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Sse, UseGuards} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {UserSubscribeDto} from "./dto/create-UserSubscribeDto";
 import {LoginCreadentialsDto} from "./dto/create-LoginCreadentialsDto";
-import {fromEvent, map, Observable} from "rxjs";
+import {filter, fromEvent, map, Observable} from "rxjs";
 import {EventEmitter2} from "@nestjs/event-emitter";
 import {CV_EVENTS} from "../cv/cv.events.config";
 import { merge } from 'rxjs';
+import {AuthGuardGuard} from "./auth-guard/auth-guard.guard";
+import {GetUser} from "./user.decorator";
+import {User, UserRoleEnum} from "./entities/user.entity";
+import {Cv} from "../cv/entities/cv.entity";
 
 @Controller('user')
 export class UserController {
@@ -40,24 +44,35 @@ export class UserController {
     return usernames;
   }
   @Get('/listen')
+  @UseGuards(AuthGuardGuard)
   @Sse('sse')
-  sse(): Observable<MessageEvent> {
+  sse(
+  ): Observable<MessageEvent> {
+    if(true){
+      console.log("I'm admin");
+
+      const addStream = fromEvent(this.eventEmitter, CV_EVENTS.add).pipe(
+          map(( payload ) => new MessageEvent('new-cv', { data: payload })),
+      );
+
+      const deleteStream = fromEvent(this.eventEmitter, CV_EVENTS.delete).pipe(
+          map((payload) => new MessageEvent('cv-deleted', { data: payload })),
+      );
+
+      const updateStream = fromEvent(this.eventEmitter, CV_EVENTS.update).pipe(
+          map((payload ) => new MessageEvent('cv-updated', { data: payload })),
+      );
+      return merge(addStream, deleteStream, updateStream);
+    }
+    else{
     const addStream = fromEvent(this.eventEmitter, CV_EVENTS.add).pipe(
-        map((payload) => new MessageEvent('new-cv', { data: payload }))
+        map(( payload ) => new MessageEvent('new-cv', { data: payload })),
     );
 
-    const deleteStream = fromEvent(this.eventEmitter, CV_EVENTS.delete).pipe(
-        map((payload) => new MessageEvent('cv-deleted', { data: payload }))
-    );
-
-    const updateStream = fromEvent(this.eventEmitter, CV_EVENTS.update).pipe(
-        map((payload) => new MessageEvent('cv-updated', { data: payload }))
-    );
-
-    // nzidou louken el user admin jawou a7la jaww
-    // snn nchoufou houwa welle le
-    return merge(addStream, deleteStream, updateStream);
+    return merge(addStream);
   }
+  }
+
 
   @Get(':id')
   findOne(@Param('id') id: string) {
