@@ -46,10 +46,8 @@ export class UserController {
   @Get('/listen')
   @UseGuards(AuthGuardGuard)
   @Sse('sse')
-  sse(
-  ): Observable<MessageEvent> {
-    if(true){
-      console.log("I'm admin");
+  sse(@GetUser() user: User): Observable<MessageEvent> {
+    if(user.role === "admin"){
 
       const addStream = fromEvent(this.eventEmitter, CV_EVENTS.add).pipe(
           map(( payload ) => new MessageEvent('new-cv', { data: payload })),
@@ -65,11 +63,22 @@ export class UserController {
       return merge(addStream, deleteStream, updateStream);
     }
     else{
-    const addStream = fromEvent(this.eventEmitter, CV_EVENTS.add).pipe(
-        map(( payload ) => new MessageEvent('new-cv', { data: payload })),
-    );
+      const userId = user.id ;
+      const addStream = fromEvent(this.eventEmitter, CV_EVENTS.add).pipe(
+          filter((payload: any) => payload.user.id === userId),
+          map((payload: any) => new MessageEvent('new-cv', { data: payload }))
+      );
+      const deleteStream = fromEvent(this.eventEmitter, CV_EVENTS.delete).pipe(
+          filter((payload: any) => payload.user.id === userId),
+          map((payload: any) => new MessageEvent('cv-deleted', { data: payload }))
+      );
 
-    return merge(addStream);
+      const updateStream = fromEvent(this.eventEmitter, CV_EVENTS.update).pipe(
+          filter((payload: any) => payload.user.id === userId),
+          map((payload: any) => new MessageEvent('cv-updated', { data: payload }))
+      );
+
+    return merge(addStream, updateStream, deleteStream);
   }
   }
 
