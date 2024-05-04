@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {UserSubscribeDto} from "./dto/create-UserSubscribeDto";
+import {LoginCreadentialsDto} from "./dto/create-LoginCreadentialsDto";
 
 @Controller('user')
 export class UserController {
@@ -15,6 +16,11 @@ export class UserController {
   @Post('/subscribe')
   subscribe(@Body() userSubscribeDto: UserSubscribeDto) {
     return this.userService.subscribe(userSubscribeDto);
+  }
+
+  @Post('/login')
+  login(@Body() credentials: LoginCreadentialsDto)  {
+    return this.userService.login(credentials);
   }
 
   @Get()

@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req} from '@nestjs/common';
 import { CvService } from './cv.service';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
+import {AuthGuardGuard} from "../user/auth-guard/auth-guard.guard";
 
 @Controller('cv')
 export class CvController {
@@ -12,7 +13,18 @@ export class CvController {
     return this.cvService.create(createCvDto);
   }
 
+  @Post('addCv')
+  @UseGuards(AuthGuardGuard)
+  async addCv(
+      @Body() createCvDto: CreateCvDto,
+      @Req() request: Request,
+  ) {
+    console.log(request);
+    return this.cvService.create(createCvDto);
+  }
+
   @Get()
+  @UseGuards(AuthGuardGuard)
   findAll() {
     return this.cvService.findAll();
   }
