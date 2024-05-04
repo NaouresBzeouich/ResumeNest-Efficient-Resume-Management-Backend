@@ -8,6 +8,8 @@ import * as dotenv from 'dotenv';
 import * as process from "node:process";
 dotenv.config();
 import { DataSource } from 'typeorm';
+import {EventEmitter} from "typeorm/browser/platform/BrowserPlatformTools";
+import {EventEmitterModule} from "@nestjs/event-emitter";
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { DataSource } from 'typeorm';
       entities: ["dist/**/*.entity{.ts,.js}"],
       synchronize: true,
     }),
+      EventEmitterModule.forRoot(),
 
   ],
   controllers: [AppController],
