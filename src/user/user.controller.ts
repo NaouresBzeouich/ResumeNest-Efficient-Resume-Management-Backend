@@ -54,6 +54,8 @@ export class UserController {
         map((payload) => new MessageEvent('cv-updated', { data: payload }))
     );
 
+    // nzidou louken el user admin jawou a7la jaww
+    // snn nchoufou houwa welle le
     return merge(addStream, deleteStream, updateStream);
   }
 

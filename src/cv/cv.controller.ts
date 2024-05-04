@@ -1,10 +1,12 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Res} from '@nestjs/common';
 import { CvService } from './cv.service';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
 import {AuthGuardGuard} from "../user/auth-guard/auth-guard.guard";
 import {EventEmitter2} from "@nestjs/event-emitter";
 import {CV_EVENTS} from "./cv.events.config";
+import {User} from "../user/entities/user.entity";
+import {GetUser} from "../user/user.decorator";
 
 @Controller('cv')
 export class CvController {
@@ -25,14 +27,17 @@ export class CvController {
   @UseGuards(AuthGuardGuard)
   async addCv(
       @Body() createCvDto: CreateCvDto,
-      @Req() request: Request,
   ) {
     return this.cvService.create(createCvDto);
   }
 
   @Get()
   @UseGuards(AuthGuardGuard)
-  findAll() {
+  findAll(
+      @Req() req:Request,
+      @GetUser() user: User,
+  ) {
+    console.log(user);
     return this.cvService.findAll();
   }
 
@@ -59,18 +64,24 @@ export class CvController {
   }
 
   @Patch('/ById')
-  async update(@Body('id') id: string,@Body() updateCvDto: UpdateCvDto) {
+  async update(
+      @Body('id') id: string,@Body() updateCvDto: UpdateCvDto,
+      @GetUser() user: User,
+      ) {
     const cv = await this.cvService.update(id, updateCvDto);
-    const userId = cv.user.id;
-    this.eventEmitter.emit(CV_EVENTS.update, {cv,userId});
+    console.log(user);
+   // const userId = user.id;
+    this.eventEmitter.emit(CV_EVENTS.update, {cv,user});
     return cv ;
   }
 
   @Delete('')
   @UseGuards(AuthGuardGuard)
-  async remove(@Body('id') id: string) {
+  async remove(@Body('id') id: string,
+               @GetUser() user: User,
+               ) {
     const cv = await this.cvService.findOne(id);
-    const userId = cv.user.id;
+    const userId = user.id;
     this.eventEmitter.emit(CV_EVENTS.delete, {cv,userId});
     return this.cvService.remove(id);
   }
