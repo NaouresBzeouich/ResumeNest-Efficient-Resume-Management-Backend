@@ -18,13 +18,14 @@ This project is a backend application developed with NestJS for managing resumes
 - CRUD operations on resumes (add, update, delete)
 - Users can only perform actions on their own resumes
 - Admins have full control over all resumes
+- Real-time notifications via Server-Sent Events (SSE) to notify users about relevant actions on their resumes
 
 ## Technologies Used
 
 - **NestJS**: A progressive Node.js framework for building efficient, reliable, and scalable server-side applications.
 - **TypeScript**: A superset of JavaScript that adds static types to the language.
 - **JWT (JSON Web Tokens)**: For secure authentication and authorization.
-- **MongoDB**: A NoSQL database for storing resume data.
+- **MySQL**: A SQL database for storing resume and user data.
 
 ## Getting Started
 
@@ -49,4 +50,3 @@ We welcome contributions from the community. If you'd like to contribute to this
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
